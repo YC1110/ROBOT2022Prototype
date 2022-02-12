@@ -22,7 +22,8 @@ public class Robot extends TimedRobot
     private Command autonomousCommand;
 
     private RobotContainer robotContainer;
-    final SendableChooser<String> chooser = new SendableChooser<>();
+    private SendableChooser<String> chooser = new SendableChooser<>();
+
 
     
     

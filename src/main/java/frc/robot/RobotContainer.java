@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import frc.robot.commands.RunTrajectoryCommand;
 import frc.robot.subsystems.*;
 import frc.robot.Constants.*;
 
@@ -33,6 +34,7 @@ public class RobotContainer
     private final ShootSubsystem m_robotShoot = new ShootSubsystem();
     private final Joystick controller1 = new Joystick(ControlConstants.kController1_port);
     private final Joystick controller2 = new Joystick(ControlConstants.kController2_port);
+
     Robot robot;
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -58,17 +60,17 @@ public class RobotContainer
     {
         //controller1 F310_DMode
         new JoystickButton(controller1,5).
+                whenPressed(() -> m_robotHang.enableMidHangMotor(true)).
+                whenReleased(m_robotHang::disableMidHangMotor);
+        new JoystickButton(controller1,6).
                 whenPressed(() -> m_robotCollect.enableIntake(false)).
                 whenReleased(m_robotCollect::disableIntake);
-        new JoystickButton(controller1,6).
-                whenPressed(() -> m_robotCollect.enableTrack(false)).
-                whenReleased(m_robotCollect::disableTrack);
         new JoystickButton(controller1,7).
+                whenPressed(() -> m_robotHang.enableMidHangMotor(false)).
+                whenReleased(m_robotHang::disableMidHangMotor);
+        new JoystickButton(controller1,8).
                 whenPressed(() -> m_robotCollect.enableIntake(true)).
                 whenReleased(m_robotCollect::disableIntake);
-        new JoystickButton(controller1,8).
-                whenPressed(() -> m_robotCollect.enableTrack(true)).
-                whenReleased(m_robotCollect::disableTrack);
         new JoystickButton(controller1,2).
                 whenPressed(() -> m_robotHang.enableSideHangAngle(true)).
                 whenReleased(m_robotHang::disableSideHangAngle);
@@ -102,21 +104,15 @@ public class RobotContainer
                 whenPressed(() -> m_robotCollect.enableTrack(false)).
                 whenReleased(m_robotCollect::disableTrack);
         new JoystickButton(controller2,5).
-                whenPressed(() -> m_robotShoot.enableUpperShoot(false)).
-                whenReleased(m_robotShoot::disableUpperShoot);
+                whenPressed(() -> m_robotCollect.enableIntake(true)).
+                whenReleased(m_robotCollect::disableIntake);
         new JoystickButton(controller2,3).
-                whenPressed(() -> m_robotShoot.enableUpperShoot(true)).
-                whenReleased(m_robotShoot::disableUpperShoot);
-        new JoystickButton(controller2,6).
-                whenPressed(() -> m_robotShoot.enableLowerShoot(false)).
-                whenReleased(m_robotShoot::disableLowerShoot);
+                whenPressed(() -> m_robotCollect.enableIntake(false)).
+                whenReleased(m_robotCollect::disableIntake);
         new JoystickButton(controller2,4).
-                whenPressed(() -> m_robotShoot.enableLowerShoot(true)).
-                whenReleased(m_robotShoot::disableLowerShoot);
-        new JoystickButton(controller2,7).
                 whenPressed(() -> m_robotHang.enableMidHangMotor(false)).
                 whenReleased(m_robotHang::disableMidHangMotor);
-        new JoystickButton(controller2,8).
+        new JoystickButton(controller2,6).
                 whenPressed(() -> m_robotHang.enableMidHangMotor(true)).
                 whenReleased(m_robotHang::disableMidHangMotor);
         new POVButton(controller2,0).

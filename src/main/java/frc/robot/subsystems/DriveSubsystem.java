@@ -14,14 +14,15 @@ import frc.robot.Constants.DriveConstants;
 
 
 public class DriveSubsystem extends SubsystemBase {
-    private final WPI_TalonSRX m_left = new WPI_TalonSRX(DriveConstants.kMotor_L_2);
-    private final WPI_TalonSRX m_right = new WPI_TalonSRX(DriveConstants.kMotor_R_2);
+    //Motors
+    private final WPI_TalonSRX m_left = new WPI_TalonSRX(DriveConstants.kMotor_L_1);
+    private final WPI_TalonSRX m_right = new WPI_TalonSRX(DriveConstants.kMotor_R_1);
     private final MotorControllerGroup m_leftmotors = new MotorControllerGroup(
-            new WPI_VictorSPX(DriveConstants.kMotor_L_1),
+            new WPI_VictorSPX(DriveConstants.kMotor_L_2),
             m_left
     );
     private final MotorControllerGroup m_rightmotors = new MotorControllerGroup(
-            new WPI_VictorSPX(DriveConstants.kMotor_R_1),
+            new WPI_VictorSPX(DriveConstants.kMotor_R_2),
             m_right
     );
     private DifferentialDrive drive = new DifferentialDrive(m_leftmotors,m_rightmotors);
@@ -33,6 +34,8 @@ public class DriveSubsystem extends SubsystemBase {
     public DriveSubsystem() {
         m_leftmotors.setInverted(DriveConstants.kMotor_L_Inverted);
         m_rightmotors.setInverted(DriveConstants.kMotor_R_Inverted);
+        m_left.setSensorPhase(DriveConstants.kEncoder_L_reversed);
+        m_right.setSensorPhase(DriveConstants.kEncoder_R_reversed);
         resetEncoders();
         m_odometry = new DifferentialDriveOdometry(m_navx.getRotation2d());
     }
@@ -48,15 +51,14 @@ public class DriveSubsystem extends SubsystemBase {
         m_right.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.SensorSum,1,1);
     }
 
-    public void arcadeDrive(double yspeed, double zrotation){
+    public void arcadeDrive(double yspeed, double zRotation){
         if(Math.abs(yspeed) > 0.05){
             yspeed = yspeed>0?-Math.pow(yspeed,2):Math.pow(yspeed,2);
         }
-        if(Math.abs(zrotation) > 0.05){
-            zrotation = zrotation>0?Math.pow(zrotation,2):-Math.pow(zrotation,2);
+        if(Math.abs(zRotation) > 0.05){
+            zRotation = zRotation>0?Math.pow(zRotation,2):-Math.pow(zRotation,2);
         }
-
-        drive.arcadeDrive(yspeed, zrotation);
+        drive.arcadeDrive(yspeed, zRotation);
     }
 
     @Override

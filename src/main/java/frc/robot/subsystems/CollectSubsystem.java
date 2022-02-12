@@ -1,13 +1,17 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CollectConstants;
 
 public class CollectSubsystem extends SubsystemBase {
-    private final WPI_VictorSPX m_intake = new WPI_VictorSPX(CollectConstants.kMotor_Intake);
+    //motors
+    private final CANSparkMax m_intake = new CANSparkMax(CollectConstants.kMotor_Intake, CANSparkMaxLowLevel.MotorType.kBrushless);
     private final WPI_VictorSPX m_track = new WPI_VictorSPX(CollectConstants.kMotor_Track);
     public CollectSubsystem(){
+        //invert motors
         m_intake.setInverted(CollectConstants.kMotor_Intake_Inverted);
         m_track.setInverted(CollectConstants.kMotor_Track_Inverted);
     }
