@@ -68,7 +68,7 @@ public class HangSubsystem extends SubsystemBase {
         //limit MidHang current
         m_MidHang.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true,39,39,0.1));
         //initial MidHang Encoder
-        m_MidHang.configSelectedFeedbackSensor(TalonFXFeedbackDevice.SensorSum,1,1);
+        m_MidHang.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,1,1);
         //set tolerance for PID
         PID_LHang.setTolerance(HangConstants.kSideHang_Tolerance);
         PID_RHang.setTolerance(HangConstants.kSideHang_Tolerance);
@@ -165,11 +165,11 @@ public class HangSubsystem extends SubsystemBase {
         }
         if(!teleopMidHang){
             double percentOutput_MidHang = MathUtil.clamp(
-                    PID_MHang.calculate(m_MidHang.getSelectedSensorPosition()*HangConstants.kEncoder_MidHang_cmperpulse, midHangSetPoint),
+                    PID_MHang.calculate(m_MidHang.getSensorCollection().getIntegratedSensorAbsolutePosition()*HangConstants.kEncoder_MidHang_cmperpulse, midHangSetPoint),
                     HangConstants.kMidHang_MinOutput,
                     HangConstants.kMidHang_MaxOutput);
             if (!limit_MHang.get()) {
-                m_MidHang.configSelectedFeedbackSensor(TalonFXFeedbackDevice.SensorSum,1,1);
+                m_MidHang.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,1,1);
                 percentOutput_MidHang = 0;
                 midHangSetPoint = 0;
             }
@@ -178,7 +178,7 @@ public class HangSubsystem extends SubsystemBase {
         }
         SmartDashboard.putNumber("Encoder_LeftHang",encoder_LHang.getDistance());
         SmartDashboard.putNumber("Encoder_RightHang",encoder_RHang.getDistance());
-        SmartDashboard.putNumber("Encoder_MidHang",m_MidHang.getSelectedSensorPosition()*HangConstants.kEncoder_MidHang_cmperpulse);
+        SmartDashboard.putNumber("Encoder_MidHang",m_MidHang.getSensorCollection().getIntegratedSensorAbsolutePosition()*HangConstants.kEncoder_MidHang_cmperpulse);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -29,7 +30,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     private DifferentialDriveOdometry m_odometry;
 
-    private AHRS m_navx = new AHRS(SerialPort.Port.kMXP);
+    private AHRS m_navx = new AHRS(SPI.Port.kMXP);
+
+    private boolean slowMo = false;
 
     public DriveSubsystem() {
         m_leftmotors.setInverted(DriveConstants.kMotor_L_Inverted);
@@ -58,7 +61,13 @@ public class DriveSubsystem extends SubsystemBase {
         if(Math.abs(zRotation) > 0.05){
             zRotation = zRotation>0?Math.pow(zRotation,2):-Math.pow(zRotation,2);
         }
+        yspeed = yspeed*(slowMo?0.7:1);
+        zRotation = zRotation*(slowMo?0.7:1);
         drive.arcadeDrive(yspeed, zRotation);
+    }
+
+    public void switchSlowMo(){
+        slowMo = !slowMo;
     }
 
     @Override

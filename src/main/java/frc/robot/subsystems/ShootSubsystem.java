@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShootConstants;
 
@@ -15,14 +15,7 @@ public class ShootSubsystem extends SubsystemBase {
     private final WPI_VictorSPX m_Shoot_Speed_lower = new WPI_VictorSPX(ShootConstants.kMotor_Shoot_lower);
     private final CANSparkMax m_Shoot_Angle = new CANSparkMax(ShootConstants.kMotor_Shoot_Angle, CANSparkMaxLowLevel.MotorType.kBrushless);
     private final WPI_VictorSPX m_Shoot_Rotation = new WPI_VictorSPX(ShootConstants.kMotor_Shoot_Rotation);
-    //PID controller
-    private final PIDController PID_Shoot_Speed = new PIDController(
-            ShootConstants.kp_Shoot_Upper_Speed,
-            ShootConstants.ki_Shoot_Upper_Speed,
-            ShootConstants.kd_Shoot_Upper_Speed
-    );
-
-
+    private int setPoint_RPM;
 
     public ShootSubsystem(){
         //invert motors
@@ -37,12 +30,22 @@ public class ShootSubsystem extends SubsystemBase {
         m_Shoot_Angle.setIdleMode(CANSparkMax.IdleMode.kBrake);
         //limit current
         m_Shoot_Speed_upper.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true,38,38,0.1));
+        m_Shoot_Speed_upper.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,1,1);
+        m_Shoot_Speed_upper.config_kP(0,ShootConstants.kp_Shoot_Upper_RPM);
+        m_Shoot_Speed_upper.config_kI(0,ShootConstants.ki_Shoot_Upper_RPM);
+        m_Shoot_Speed_upper.config_kD(0,ShootConstants.kd_Shoot_Upper_RPM);
+        m_Shoot_Speed_upper.setSensorPhase(ShootConstants.kEncoder_Shoot_Upper_reversed);
+
+        setPoint_RPM = 0;
     }
     public void enableBoth(boolean reverse){
-        m_Shoot_Speed_upper.set(TalonFXControlMode.PercentOutput,ShootConstants.kShoot_Upper_Speed*(reverse?-1:1));
+//        m_Shoot_Speed_upper.set(TalonFXControlMode.PercentOutput,ShootConstants.kShoot_Upper_Speed*(reverse?-1:1));
+        setPoint_RPM = 6380/600*2048*(reverse?-1:1);
+        m_Shoot_Speed_upper.set(TalonFXControlMode.Velocity,setPoint_RPM);
         m_Shoot_Speed_lower.set(ControlMode.PercentOutput,ShootConstants.kShoot_Lower_Speed*(reverse?-1:1));
     }
     public void stopBoth(){
+        setPoint_RPM = 0;
         m_Shoot_Speed_upper.set(TalonFXControlMode.PercentOutput,0);
         m_Shoot_Speed_lower.set(0);
     }
@@ -74,7 +77,7 @@ public class ShootSubsystem extends SubsystemBase {
     }
     @Override
     public void periodic(){
-
+        SmartDashboard.putNumber("ShooterVelocity",m_Shoot_Speed_upper.getSelectedSensorVelocity());
     }
     @Override
     public void simulationPeriodic(){

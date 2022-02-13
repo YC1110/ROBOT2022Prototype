@@ -18,13 +18,13 @@ public final class Constants {
     public static class CollectConstants{
         //constants for Intake
         public static final int kMotor_Intake = 10;
-        public static final boolean kMotor_Intake_Inverted = false;
+        public static final boolean kMotor_Intake_Inverted = true;
         public static final double kIntakeSpeed_enable = 1;
 
         //constants for Track
         public static final int kMotor_Track = 3;
         public static final boolean kMotor_Track_Inverted = true;
-        public static final double kTrackSpeed = 0.7;
+        public static final double kTrackSpeed = 1;
     }
     //constants for DriveSubsystem
     public static class DriveConstants{
@@ -96,15 +96,15 @@ public final class Constants {
         //constants for ShootUpper
         public static final int kMotor_Shoot_upper = 1;
         public static final boolean kMotor_Shoot_upper_Inverted = false;
-        public static final double kp_Shoot_Upper_Speed = 0.1;
-        public static final double ki_Shoot_Upper_Speed = 0;
-        public static final double kd_Shoot_Upper_Speed = 0;
-        public static final double kShoot_Upper_Speed = 0.5;
+        public static final boolean kEncoder_Shoot_Upper_reversed = false;
+        public static final double kp_Shoot_Upper_RPM = 0.1;
+        public static final double ki_Shoot_Upper_RPM = 0;
+        public static final double kd_Shoot_Upper_RPM = 0;
 
         //constants for ShootLower
         public static final int kMotor_Shoot_lower = 2;
         public static final boolean kMotor_Shoot_lower_Inverted = true;
-        public static final double kShoot_Lower_Speed = 1;
+        public static final double kShoot_Lower_Speed = 0.3;
 
         //constants for ShootAngle
         public static final int kMotor_Shoot_Angle = 5;

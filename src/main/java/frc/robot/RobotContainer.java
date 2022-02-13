@@ -44,11 +44,15 @@ public class RobotContainer
         this.robot = robot;
         configureButtonBindings();
         m_robotDrive.setDefaultCommand(new RunCommand(()->{
-            if (robot.isTeleopEnabled())
-                teleperiodic();
+            if (robot.isTeleopEnabled()) {
+                telePeriodic();
+            }
         },m_robotDrive));
     }
-    
+//    public boolean intake_trigger = false;
+//    public boolean intake_bumpper = false;
+//    public boolean midhang_trigger = false;
+//    public boolean midhang_bumpper = false;
     
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
@@ -58,7 +62,7 @@ public class RobotContainer
      */
     private void configureButtonBindings()
     {
-        //controller1 F310_DMode
+        //controller1 XboxController
         new JoystickButton(controller1,5).
                 whenPressed(() -> m_robotHang.enableMidHangMotor(true)).
                 whenReleased(m_robotHang::disableMidHangMotor);
@@ -77,6 +81,8 @@ public class RobotContainer
         new JoystickButton(controller1,3).
                 whenPressed(() -> m_robotHang.enableSideHangAngle(false)).
                 whenReleased(m_robotHang::disableSideHangAngle);
+        new JoystickButton(controller1,3).
+                whenPressed(m_robotDrive::switchSlowMo);
         new POVButton(controller1,0).
                 whenPressed(() -> m_robotHang.enableSideHangMotor(true,true,true)).
                 whenReleased(m_robotHang::disableSideHangMotor);
@@ -103,10 +109,10 @@ public class RobotContainer
         new JoystickButton(controller2,2).
                 whenPressed(() -> m_robotCollect.enableTrack(false)).
                 whenReleased(m_robotCollect::disableTrack);
-        new JoystickButton(controller2,5).
+        new JoystickButton(controller2,3).
                 whenPressed(() -> m_robotCollect.enableIntake(true)).
                 whenReleased(m_robotCollect::disableIntake);
-        new JoystickButton(controller2,3).
+        new JoystickButton(controller2,5).
                 whenPressed(() -> m_robotCollect.enableIntake(false)).
                 whenReleased(m_robotCollect::disableIntake);
         new JoystickButton(controller2,4).
@@ -127,7 +133,9 @@ public class RobotContainer
         new POVButton(controller2,270).
                 whenPressed(() -> m_robotShoot.enableShootRotation(false)).
                 whenReleased(m_robotShoot::disableShootRotation);
-
+        new JoystickButton(controller2,7).
+                whenPressed(() -> m_robotCollect.enableTrack(true)).
+                whenReleased(m_robotCollect::disableTrack);
 
         // Add button to command mappings here.
         // See https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html
@@ -144,7 +152,23 @@ public class RobotContainer
 //        // An ExampleCommand will run in autonomous
 //        return autoCommand;
 //    }
-    private void teleperiodic(){
+    private void telePeriodic(){
         m_robotDrive.arcadeDrive(controller1.getY(),controller1.getZ());
+//
+//        if(intake_bumpper && !intake_trigger){
+//            m_robotCollect.enableIntake(false);
+//        }else if(!intake_bumpper && intake_trigger){
+//            m_robotCollect.enableIntake(true);
+//        }else{
+//            m_robotCollect.disableIntake();
+//        }
+//
+//        if (midhang_bumpper && !midhang_trigger){
+//            m_robotHang.enableMidHangMotor(true);
+//        }else if(!midhang_bumpper && midhang_trigger){
+//            m_robotHang.enableMidHangMotor(false);
+//        }else{
+//            m_robotHang.disableMidHangMotor();
+//        }
     }
 }
