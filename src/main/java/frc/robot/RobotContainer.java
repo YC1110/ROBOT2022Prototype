@@ -32,11 +32,11 @@ public class RobotContainer
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     private final HangSubsystem m_robotHang = new HangSubsystem();
     private final ShootSubsystem m_robotShoot = new ShootSubsystem();
-    private final Joystick controller1 = new Joystick(ControlConstants.kController1_port);
+    private final XboxController controller1 = new XboxController(ControlConstants.kController1_port);
     private final Joystick controller2 = new Joystick(ControlConstants.kController2_port);
 
     Robot robot;
-    
+
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer(Robot robot)
     {
@@ -69,16 +69,16 @@ public class RobotContainer
         new JoystickButton(controller1,6).
                 whenPressed(() -> m_robotCollect.enableIntake(false)).
                 whenReleased(m_robotCollect::disableIntake);
-        new JoystickButton(controller1,7).
-                whenPressed(() -> m_robotHang.enableMidHangMotor(false)).
-                whenReleased(m_robotHang::disableMidHangMotor);
-        new JoystickButton(controller1,8).
-                whenPressed(() -> m_robotCollect.enableIntake(true)).
-                whenReleased(m_robotCollect::disableIntake);
-        new JoystickButton(controller1,2).
+//        new JoystickButton(controller1,7).
+//                whenPressed(() -> m_robotHang.enableMidHangMotor(true,false)).
+//                whenReleased(m_robotHang::disableMidHangMotor);
+//        new JoystickButton(controller1,8).
+//                whenPressed(() -> m_robotCollect.enableIntake(true,true)).
+//                whenReleased(m_robotCollect::disableIntake);
+        new JoystickButton(controller1,1).
                 whenPressed(() -> m_robotHang.enableSideHangAngle(true)).
                 whenReleased(m_robotHang::disableSideHangAngle);
-        new JoystickButton(controller1,3).
+        new JoystickButton(controller1,2).
                 whenPressed(() -> m_robotHang.enableSideHangAngle(false)).
                 whenReleased(m_robotHang::disableSideHangAngle);
         new JoystickButton(controller1,3).
@@ -113,7 +113,7 @@ public class RobotContainer
                 whenPressed(() -> m_robotCollect.enableIntake(true)).
                 whenReleased(m_robotCollect::disableIntake);
         new JoystickButton(controller2,5).
-                whenPressed(() -> m_robotCollect.enableIntake(false)).
+                whenPressed(() -> m_robotCollect.enableIntake( false)).
                 whenReleased(m_robotCollect::disableIntake);
         new JoystickButton(controller2,4).
                 whenPressed(() -> m_robotHang.enableMidHangMotor(false)).
@@ -153,8 +153,18 @@ public class RobotContainer
 //        return autoCommand;
 //    }
     private void telePeriodic(){
-        m_robotDrive.arcadeDrive(controller1.getY(),controller1.getZ());
-//
+        m_robotDrive.arcadeDrive(controller1.getLeftY(),controller1.getRightX());
+
+        if(!(controller1.getLeftTriggerAxis() > 0.1) && !controller1.getLeftBumper() && !controller2.getRawButton(4) && !controller2.getRawButton(6)){
+            m_robotHang.disableMidHangMotor();
+        }else if(controller1.getLeftTriggerAxis() > 0.1){
+            m_robotHang.enableMidHangMotor(false);
+        }
+        if(!(controller1.getRightTriggerAxis() > 0.1) && !controller1.getRightBumper() && !controller2.getRawButton(3) && !controller2.getRawButton(5)){
+            m_robotCollect.disableIntake();
+        }else if(controller1.getRightTriggerAxis() > 0.1){
+            m_robotCollect.enableIntake(true);
+        }
 //        if(intake_bumpper && !intake_trigger){
 //            m_robotCollect.enableIntake(false);
 //        }else if(!intake_bumpper && intake_trigger){

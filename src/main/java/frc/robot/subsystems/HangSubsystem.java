@@ -68,7 +68,7 @@ public class HangSubsystem extends SubsystemBase {
         //limit MidHang current
         m_MidHang.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true,39,39,0.1));
         //initial MidHang Encoder
-        m_MidHang.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,1,1);
+        m_MidHang.configSelectedFeedbackSensor(TalonFXFeedbackDevice.SensorSum,1,1);
         //set tolerance for PID
         PID_LHang.setTolerance(HangConstants.kSideHang_Tolerance);
         PID_RHang.setTolerance(HangConstants.kSideHang_Tolerance);
