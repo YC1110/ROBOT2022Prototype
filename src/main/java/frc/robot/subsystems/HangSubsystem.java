@@ -19,7 +19,7 @@ public class HangSubsystem extends SubsystemBase {
     private final TalonFX m_MidHang = new TalonFX(HangConstants.kMotor_MidHnag);
     //PneumaticSystem
     private final Compressor compressor = new Compressor(HangConstants.kPCMModule,PneumaticsModuleType.CTREPCM);
-    private final DoubleSolenoid m_SideHangAngle = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,HangConstants.kDoubleSol_A,HangConstants.kDoubleSol_B);
+    private final DoubleSolenoid m_SideHangAngle = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,HangConstants.kDoubleSol_B,HangConstants.kDoubleSol_A);
     //LimitSwitch
     private final DigitalInput limit_LHang = new DigitalInput(HangConstants.kLimitswitch_LHang);
     private final DigitalInput limit_RHang = new DigitalInput(HangConstants.kLimitswitch_Rhang);
@@ -45,9 +45,12 @@ public class HangSubsystem extends SubsystemBase {
     );
     //for AutoHang
     private boolean teleopSideHang = false;
-    private double sideHangSetPoint = -200;
+//    private double sideHangSetPoint = -200;
     private boolean teleopMidHang = false;
-    private double midHangSetPoint = -200;
+//    private double midHangSetPoint = -200;
+    private int setPoint_LHang;
+    private int setPoint_RHang;
+    private int setPoint_MHang;
 
     public HangSubsystem(){
         //Invert Motors
@@ -56,9 +59,9 @@ public class HangSubsystem extends SubsystemBase {
         m_MidHang.setInverted(HangConstants.kMotor_MidHang_Inverted);
         //invert MidHang Encoder
         m_MidHang.setSensorPhase(HangConstants.kEncoder_MidHang_reversed);
-        //set the distance for SideHang Encoders (cm)
-        encoder_LHang.setDistancePerPulse(HangConstants.kEncoder_SideHang_cmperpulse);
-        encoder_RHang.setDistancePerPulse(HangConstants.kEncoder_SideHang_cmperpulse);
+        //set the distance for SideHang Encoders (mm)
+        encoder_LHang.setDistancePerPulse(HangConstants.kEncoder_SideHang_mmperpulse);
+        encoder_RHang.setDistancePerPulse(HangConstants.kEncoder_SideHang_mmperpulse);
         //enable compressor
         compressor.enableDigital();
         //set neutral mode for motors
@@ -73,6 +76,10 @@ public class HangSubsystem extends SubsystemBase {
         PID_LHang.setTolerance(HangConstants.kSideHang_Tolerance);
         PID_RHang.setTolerance(HangConstants.kSideHang_Tolerance);
         PID_MHang.setTolerance(HangConstants.kMidHang_Tolerance);
+
+        setPoint_LHang = -9000;
+        setPoint_RHang = -9000;
+        setPoint_MHang = -9000;
     }
     public Encoder encoder_LeftHang(){
         return encoder_LHang;
@@ -81,10 +88,16 @@ public class HangSubsystem extends SubsystemBase {
         return encoder_RHang;
     }
 
+    public void autoHangSwitch(boolean enableAuto){
+        teleopMidHang = !enableAuto;
+        teleopSideHang = !enableAuto;
+    }
+
     public void enableMidHangMotor(boolean up){
         teleopMidHang = true;
         m_MidHang.set(TalonFXControlMode.PercentOutput,up?1:-1);
-        midHangSetPoint = up?HangConstants.kMidHang_HighestPosition:-200;
+        setPoint_MHang = up?HangConstants.kMidHang_HighestPosition:-9000;
+//        midHangSetPoint = up?HangConstants.kMidHang_HighestPosition:-200;
     }
     public void disableMidHangMotor(){
         teleopMidHang = false;
@@ -97,7 +110,8 @@ public class HangSubsystem extends SubsystemBase {
             if(left && right){
                 m_LeftHang.set(HangConstants.kSideHang_MaxOutput);
                 m_RightHang.set(HangConstants.kSideHang_MaxOutput);
-                sideHangSetPoint = HangConstants.kSideHang_HighestPosition;
+                setPoint_LHang = HangConstants.kSideHang_HighestPosition;
+                setPoint_RHang = HangConstants.kSideHang_HighestPosition;
             }else if(left){
                 m_LeftHang.set(HangConstants.kSideHang_MaxOutput);
                 m_RightHang.set(0);
@@ -105,11 +119,18 @@ public class HangSubsystem extends SubsystemBase {
                 m_LeftHang.set(0);
                 m_RightHang.set(HangConstants.kSideHang_MaxOutput);
             }
+//        }else if(!limit_LHang.get() && !limit_RHang.get()){
+//            disableSideHangMotor();
+//        }else if (!limit_LHang.get() && limit_RHang.get()){
+//            m_LeftHang.set(0);
+//        }else if(!limit_LHang.get() && !limit_RHang.get()){
+//            m_RightHang.set(0);
         }else{
             if(left && right){
                 m_LeftHang.set(HangConstants.kSideHang_MinOutput);
                 m_RightHang.set(HangConstants.kSideHang_MinOutput);
-                sideHangSetPoint = -200;
+                setPoint_LHang = -9000;
+                setPoint_RHang = -9000;
             }else if(left){
                 m_LeftHang.set(HangConstants.kSideHang_MinOutput);
                 m_RightHang.set(0);
@@ -118,6 +139,7 @@ public class HangSubsystem extends SubsystemBase {
                 m_RightHang.set(HangConstants.kSideHang_MinOutput);
             }
         }
+
     }
     public void disableSideHangMotor(){
         m_LeftHang.set(0);
@@ -134,51 +156,54 @@ public class HangSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
-        if(!teleopSideHang){
-            double percentOutput_LeftHang = MathUtil.clamp(
-                    PID_LHang.calculate(encoder_LHang.getDistance(), sideHangSetPoint),
-                    HangConstants.kSideHang_MinOutput,
-                    HangConstants.kSideHang_MaxOutput);
-            if(!limit_LHang.get()){
-                encoder_LHang.reset();
-                percentOutput_LeftHang = 0;
-            }
-            double percentOutput_RightHang = MathUtil.clamp(
-                    PID_RHang.calculate(encoder_RHang.getDistance(), sideHangSetPoint),
-                    HangConstants.kSideHang_MinOutput,
-                    HangConstants.kSideHang_MaxOutput);
-            if(!limit_RHang.get()){
-                encoder_RHang.reset();
-                percentOutput_RightHang = 0;
-            }
-            if(!limit_LHang.get() && !limit_RHang.get()){
-                encoder_LHang.reset();
-                encoder_RHang.reset();
-                sideHangSetPoint = 0;
-            }
-
-            m_LeftHang.set(ControlMode.PercentOutput, percentOutput_LeftHang);
-            m_RightHang.set(ControlMode.PercentOutput, percentOutput_RightHang);
-
-            SmartDashboard.putNumber("LeftHang_Output", percentOutput_LeftHang);
-            SmartDashboard.putNumber("RightHang_Output", percentOutput_RightHang);
-        }
-        if(!teleopMidHang){
-            double percentOutput_MidHang = MathUtil.clamp(
-                    PID_MHang.calculate(m_MidHang.getSensorCollection().getIntegratedSensorAbsolutePosition()*HangConstants.kEncoder_MidHang_cmperpulse, midHangSetPoint),
-                    HangConstants.kMidHang_MinOutput,
-                    HangConstants.kMidHang_MaxOutput);
-            if (!limit_MHang.get()) {
-                m_MidHang.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,1,1);
-                percentOutput_MidHang = 0;
-                midHangSetPoint = 0;
-            }
-            m_MidHang.set(TalonFXControlMode.PercentOutput,percentOutput_MidHang);
-            SmartDashboard.putNumber("MidHang_Output",percentOutput_MidHang);
-        }
+//        if(!teleopSideHang){
+//            double percentOutput_LeftHang = MathUtil.clamp(
+//                    PID_LHang.calculate(encoder_LHang.getDistance(), setPoint_LHang),
+//                    HangConstants.kSideHang_MinOutput,
+//                    HangConstants.kSideHang_MaxOutput);
+//            if(!limit_LHang.get()){
+//                encoder_LHang.reset();
+//                percentOutput_LeftHang = 0;
+//            }
+//            double percentOutput_RightHang = MathUtil.clamp(
+//                    PID_RHang.calculate(encoder_RHang.getDistance(), setPoint_RHang),
+//                    HangConstants.kSideHang_MinOutput,
+//                    HangConstants.kSideHang_MaxOutput);
+//            if(!limit_RHang.get()){
+//                encoder_RHang.reset();
+//                percentOutput_RightHang = 0;
+//            }
+//            if(!limit_LHang.get() && !limit_RHang.get()){
+//                encoder_LHang.reset();
+//                encoder_RHang.reset();
+//                setPoint_LHang = 0;
+//                setPoint_RHang = 0;
+//            }
+//
+//            m_LeftHang.set(ControlMode.PercentOutput, percentOutput_LeftHang);
+//            m_RightHang.set(ControlMode.PercentOutput, percentOutput_RightHang);
+//
+//            SmartDashboard.putNumber("LeftHang_Output", percentOutput_LeftHang);
+//            SmartDashboard.putNumber("RightHang_Output", percentOutput_RightHang);
+//        }
+//        if(!teleopMidHang){
+//            double percentOutput_MidHang = MathUtil.clamp(
+//                    PID_MHang.calculate(m_MidHang.getSensorCollection().getIntegratedSensorAbsolutePosition()*HangConstants.kEncoder_SideHang_mmperpulse, setPoint_MHang),
+//                    HangConstants.kMidHang_MinOutput,
+//                    HangConstants.kMidHang_MaxOutput);
+//            if (!limit_MHang.get()) {
+//                m_MidHang.configSelectedFeedbackSensor(TalonFXFeedbackDevice.SensorSum,1,1);
+//                percentOutput_MidHang = 0;
+//                setPoint_MHang = 0;
+//            }
+//            m_MidHang.set(TalonFXControlMode.PercentOutput,percentOutput_MidHang);
+//            SmartDashboard.putNumber("MidHang_Output",percentOutput_MidHang);
+//        }
         SmartDashboard.putNumber("Encoder_LeftHang",encoder_LHang.getDistance());
         SmartDashboard.putNumber("Encoder_RightHang",encoder_RHang.getDistance());
-        SmartDashboard.putNumber("Encoder_MidHang",m_MidHang.getSensorCollection().getIntegratedSensorAbsolutePosition()*HangConstants.kEncoder_MidHang_cmperpulse);
+        SmartDashboard.putNumber("Encoder_MidHang",m_MidHang.getSensorCollection().getIntegratedSensorAbsolutePosition()*HangConstants.kEncoder_SideHang_mmperpulse);
+
+        SmartDashboard.putBoolean("Limit_MidHang",limit_MHang.get());
     }
 
     @Override

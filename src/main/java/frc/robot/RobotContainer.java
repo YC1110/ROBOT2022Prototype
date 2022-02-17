@@ -101,6 +101,9 @@ public class RobotContainer
         new POVButton(controller1,315).
                 whenPressed(() -> m_robotHang.enableSideHangMotor(true,true,false)).
                 whenReleased(m_robotHang::disableSideHangMotor);
+        new JoystickButton(controller1,4).
+                whenPressed(() -> m_robotHang.autoHangSwitch(false)).
+                whenReleased(() -> m_robotHang.autoHangSwitch(true));
 
         //controller2 X3D
         new JoystickButton(controller2,1).
@@ -109,10 +112,10 @@ public class RobotContainer
         new JoystickButton(controller2,2).
                 whenPressed(() -> m_robotCollect.enableTrack(false)).
                 whenReleased(m_robotCollect::disableTrack);
-        new JoystickButton(controller2,3).
+        new JoystickButton(controller2,5).
                 whenPressed(() -> m_robotCollect.enableIntake(true)).
                 whenReleased(m_robotCollect::disableIntake);
-        new JoystickButton(controller2,5).
+        new JoystickButton(controller2,3).
                 whenPressed(() -> m_robotCollect.enableIntake( false)).
                 whenReleased(m_robotCollect::disableIntake);
         new JoystickButton(controller2,4).

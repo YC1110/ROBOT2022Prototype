@@ -32,7 +32,7 @@ public final class Constants {
         public static final int kMotor_L_1 = 0;
         public static final int kMotor_L_2 = 15;
         public static final  boolean kMotor_L_Inverted = false;
-        public static final boolean kEncoder_L_reversed = false;
+        public static final boolean kEncoder_L_reversed = true;
 
         //constants for RightMotors
         public static final int kMotor_R_1 = 13;
@@ -52,14 +52,14 @@ public final class Constants {
         public static final int kMotor_MidHnag = 12;
         public static final boolean kMotor_MidHang_Inverted = false;
         public static final boolean kEncoder_MidHang_reversed = false;
-        public static final int kLimitswitch_MHang = 2;
+        public static final int kLimitswitch_MHang = 0;
         public static final double kp_MidHang = 0.1;
         public static final double ki_MidHang = 0;
         public static final double kd_MidHang = 0;
         public static final double kMidHang_MaxOutput = 1;
         public static final double kMidHang_MinOutput = -1;
         public static final double kMidHang_Tolerance = 1;
-        public static final int kMidHang_HighestPosition = 57;
+        public static final int kMidHang_HighestPosition = 5000;
 
         //constants for LeftHang
         public static final int kMotor_LHang = 4;
@@ -67,29 +67,28 @@ public final class Constants {
         public static final int kEncoder_LHang_A = 5;
         public static final int kEncoder_LHang_B = 6;
         public static final boolean kEncoder_LHang_reversed = true;
-        public static final int kLimitswitch_LHang = 1;
+        public static final int kLimitswitch_LHang = 2;
         public static final double kp_LHang = 0.5;
         public static final double ki_LHang = 0.4;
         public static final double kd_LHang = 0;
 
         //constants for RightHang
         public static final int kMotor_RHang = 11;
-        public static final boolean kMotor_RHang_Inverted = true;
-        public static final int kEncoder_RHang_A = 3;
+        public static final boolean kMotor_RHang_Inverted = true;        public static final int kEncoder_RHang_A = 3;
         public static final int kEncoder_RHang_B = 4;
         public static final boolean kEncoder_RHang_reversed = false;
-        public static final int kLimitswitch_Rhang = 0;
+        public static final int kLimitswitch_Rhang = 1;
         public static final double kp_RHang = 0.5;
         public static final double ki_RHang = 0;
         public static final double kd_RHang = 0;
 
         public static final double kSideHang_MaxOutput = 1;
         public static final double kSideHang_MinOutput = -1;
-        public static final int kSideHang_Tolerance = 1;
-        public static final int kSideHang_HighestPosition = 90;
+        public static final int kSideHang_Tolerance = 100;
+        public static final int kSideHang_HighestPosition = 5000;
 
-        public static final double kEncoder_MidHang_cmperpulse = 6*Math.PI/2048/100;
-        public static final double kEncoder_SideHang_cmperpulse = 6*Math.PI/4/188;
+        public static final double kEncoder_MidHang_mmperpulse = 6*Math.PI/100/2048/100;
+        public static final double kEncoder_SideHang_mmperpulse = 6*Math.PI/100/7/188;
 
     }
     public static class ShootConstants{
@@ -113,11 +112,18 @@ public final class Constants {
         public static final double ki_Shoot_Angle = 0;
         public static final double kd_Shoot_Angle = 0;
         public static final double kMotor_Shoot_Angle_Speed = 0.1;
+        public static final double kMotor_Shoot_Angle_MaxOutput = 0.1;
+        public static final double kMotor_Shoot_Angle_MinOutput = -0.1;
 
         //constants for shootRotation
         public static final int kMotor_Shoot_Rotation = 9;
         public static final boolean kMotor_Shoot_Rotation_Inverted = true;
         public static final double kMotor_Shoot_Rotation_Speed = 1;
+        public static final double kp_Shoot_Rotation = 0.1;
+        public static final double ki_Shoot_Rotation = 0;
+        public static final double kd_Shoot_Rotation = 0;
+        public static final double kMotor_Shoot_Rotation_MaxOutput = 1;
+        public static final double kMotor_Shoot_Rotation_MinOutput = -1;
     }
     //constants for controller
     public static class ControlConstants{

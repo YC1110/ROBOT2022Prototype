@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -54,6 +55,10 @@ public class DriveSubsystem extends SubsystemBase {
         m_right.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.SensorSum,1,1);
     }
 
+    public Pose2d getPose(){
+        return m_odometry.getPoseMeters();
+    }
+
     public void arcadeDrive(double yspeed, double zRotation){
         if(Math.abs(yspeed) > 0.05){
             yspeed = yspeed>0?-Math.pow(yspeed,2):Math.pow(yspeed,2);
@@ -74,6 +79,12 @@ public class DriveSubsystem extends SubsystemBase {
     public void periodic(){
         SmartDashboard.putNumber("LeftDrive_Encoder",m_left.getSelectedSensorPosition()*DriveConstants.kEncoder_meterperpulse);
         SmartDashboard.putNumber("RightDrive_Encoder",m_right.getSelectedSensorPosition()*DriveConstants.kEncoder_meterperpulse);
+
+        m_odometry.update(
+                m_navx.getRotation2d(),
+                encoder_LDrive().getSelectedSensorPosition()*DriveConstants.kEncoder_meterperpulse,
+                encoder_RDrive().getSelectedSensorPosition()*DriveConstants.kEncoder_meterperpulse
+        );
     }
     @Override
     public void simulationPeriodic(){
